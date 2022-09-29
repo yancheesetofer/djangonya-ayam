@@ -11,6 +11,12 @@ import datetime
 
 # Create your views here.
 
+def index(request):
+    context = {
+
+    }
+    return render(request, "index.html", context)
+    
 @login_required(login_url='/wishlist/login/')
 def show_wishlist(request):
     data_barang_wishlist = BarangWishlist.objects.all()
@@ -20,6 +26,7 @@ def show_wishlist(request):
         'last_login': request.COOKIES['last_login']
     }
     return render(request, "wishlist.html", context)
+
 
 def return_xml(request):
     data = BarangWishlist.objects.all()
