@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
 from wishlist.models import BarangWishlist
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, HttpRequest
 from django.core import serializers
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib import messages
@@ -16,6 +16,14 @@ def index(request):
 
     }
     return render(request, "index.html", context)
+
+def wishlist_ajax(request):
+    context = {
+        'nama': 'yancheesetofer',
+        'last_login': request.COOKIES['last_login']
+    }
+
+    return render(request, "wishlist_ajax.html", context)
     
 @login_required(login_url='/wishlist/login/')
 def show_wishlist(request):
@@ -77,3 +85,22 @@ def logout_user(request):
     response = HttpResponseRedirect(reverse('wishlist:login'))
     response.delete_cookie('last_login')
     return response
+
+def create_wishlist(request: HttpRequest):
+    if request.method == "POST":
+        nama_barang = request.POST.get("nama_barang")
+        harga_barang = request.POST.get("harga_barang")
+        deskripsi = request.POST.get("deskripsi")
+
+        new_barang = BarangWishlist(
+            nama_barang=nama_barang,
+            harga_barang=harga_barang,
+            deskripsi=deskripsi,
+        )
+        new_barang.save()
+        return HttpResponse(
+            serializers.serialize("json", [new_barang]),
+            content_type="application/json",
+        )
+
+    return HttpResponse("Invalid method", status_code=405)
